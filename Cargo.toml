@@ -1,0 +1,3 @@
+[dependencies]
+darwin-rs = "0.3"
+clap = "2.13"
