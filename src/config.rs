@@ -39,5 +39,10 @@ pub fn create_config() -> Configuration {
             .help("Specify the font path")
         .get_matches();
 
+        if let Some(config_file) = matches.value_of("config") {
+            println!("Loading configuration file: {}", config_file);
+        }
+
+        // Command line parameter can overwrite configuration file settings
 
 }
