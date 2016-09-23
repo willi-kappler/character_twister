@@ -1,3 +1,16 @@
+[package]
+name = "character_twister"
+version = "0.1.0"
+authors = ["Willi Kappler, grandor@gmx.de"]
+license = "MIT"
+description = "OCR software written in Rust"
+readme = "README.md"
+repository = "https://github.com/willi-kappler/character_twister"
+keywords = ["OCR", "character", "recognition"]
+
+
 [dependencies]
 darwin-rs = "0.3"
 clap = "2.13"
+quick-error = "1.1"
+yaml-rust = "0.3"
