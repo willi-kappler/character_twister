@@ -21,6 +21,7 @@ pub struct Configuration {
 }
 
 fn load_config_file(file_name: String) -> Result<Configuration, ConfigurationError> {
+    
     Ok(default_configuration())
 }
 
@@ -43,6 +44,9 @@ fn parse_font_size(font_size: &str) -> Result<(u8, u8), ConfigurationError> {
     // 10-15
     // 10;15
 
+
+
+    
     Ok((font_size_min, font_size_max))
 }
 
