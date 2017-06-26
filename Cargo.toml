@@ -20,6 +20,7 @@ categories = ["algorithms", "science"]
 darwin-rs = "0.4"
 clap = "2.25"
 font-loader = "0.3.2"
+yaml-rust = "0.3.5"
 
 [profile.release]
 lto = true

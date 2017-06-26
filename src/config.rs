@@ -1,15 +1,5 @@
 use clap::{Arg, App};
-use yaml_rust::YamlLoader;
-
-quick_error! {
-    #[derive(Debug)]
-    pub enum ConfigurationError {
-        InvalidFontRange {}
-        FontPathDoesNotExist {}
-        InputPathDoesNotExist {}
-        ErrorInConfigFile {}
-    }
-}
+use yaml_rust::{YamlLoader};
 
 #[derive(Clone, Debug)]
 pub struct Configuration {
@@ -22,10 +12,10 @@ pub struct Configuration {
 
 fn default_config() -> Configuration {
     Configuration {
-        input_path: String::from("./"),
+        input_path: "./".to_string(),
         font_size_min: 8,
         font_size_max: 16,
-        font_name: String::from("FreeMono")
+        font_name: "FreeMono".to_string()
     }
 }
 
