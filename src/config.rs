@@ -30,11 +30,13 @@ pub fn create_config() -> Configuration {
         .arg(Arg::with_name("font_range")
             .short("s")
             .long("size")
-            .help("Specify the range of font sizes to try, separated with a colon ':'. ex.: 8:20"))
+            .help("Specify the range of font sizes to try, separated with a colon ':'. ex.: 8:20")
+            .takes_value(true))
         .arg(Arg::with_name("font_path")
             .short("f")
             .long("font")
-            .help("Specify the font path"))
+            .help("Specify the font path")
+            .takes_value(true))
         .after_help(
             "Examples:\n\
              # uses default values for font range, name and input path:\n\
@@ -63,15 +65,44 @@ pub fn create_config() -> Configuration {
 
         if let Some(input_path) = matches.value_of("input") {
             result.input_path = input_path.to_string();
+            println!("input path: {}", input_path);
         }
 
         if let Some(font_path) = matches.value_of("font_path") {
             result.font_path = font_path.to_string();
+            println!("using font: {}", font_path);
         }
 
         if let Some(font_range) = matches.value_of("font_range") {
-            //result.font_size_min = ;
-            //result.font_size_max = ;
+            let values: Vec<&str> = font_range.split(":").collect();
+
+            let num_of_values = values.len();
+
+            println!("num_of_values: {}", num_of_values);
+
+            match num_of_values {
+                1 => {
+                    println!("wrong format for font range: '{}', use colon ':' to separate values, ex.: '12:16'.", font_range);
+                },
+                2 => {
+                    let min_value = values[0].parse::<u8>();
+                    let max_value = values[1].parse::<u8>();
+
+                    match (min_value, max_value) {
+                        (Ok(min_value), Ok(max_value)) => {
+                            println!("font range values: {} - {}", min_value, max_value);
+                            result.font_size_min = min_value;
+                            result.font_size_max = max_value;
+                        },
+                        _ => {
+                            println!("wrong format for font range: '{}', two integer values are needed, ex.: '12:16'.", font_range);
+                        }
+                    }
+                },
+                _ => {
+                    println!("wrong format for font range: '{}', only two values allowed.", font_range);
+                }
+            }
         }
 /*
         if let Some() = matches.value_of("") {
