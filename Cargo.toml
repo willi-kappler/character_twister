@@ -19,3 +19,4 @@ categories = ["algorithms", "science"]
 [dependencies]
 darwin-rs = "0.4"
 clap = "2.25"
+font-loader = "0.3.2"
