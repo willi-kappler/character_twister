@@ -2,7 +2,7 @@ extern crate darwin_rs;
 extern crate clap;
 extern crate font_loader;
 
-use darwin_rs::{Individual, SimulationBuilder, Population, PopulationBuilder};
+// use darwin_rs::{Individual, SimulationBuilder, Population, PopulationBuilder};
 
 mod config;
 
