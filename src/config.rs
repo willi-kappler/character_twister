@@ -1,5 +1,12 @@
+// External modules
 use clap::{Arg, App};
 use yaml_rust::{YamlLoader};
+
+// System modules
+use std::fs::OpenOptions;
+use std::io::BufReader;
+use std::io::Read;
+use std::cmp;
 
 #[derive(Clone, Debug)]
 pub struct Configuration {
@@ -60,7 +67,7 @@ pub fn create_config() -> Configuration {
         .get_matches();
 
     // Default values:
-    let mut result = default_config().clone();
+    let mut result = default_config();
 
     if let Some(config_file) = matches.value_of("config") {
         result = load_config(config_file);
@@ -69,12 +76,12 @@ pub fn create_config() -> Configuration {
     // Command line parameter can overwrite configuration file settings
     if let Some(input_path) = matches.value_of("input") {
         result.input_path = input_path.to_string();
-        println!("input path: {}", input_path);
+        info!("input path: {}", input_path);
     }
 
     if let Some(font_name) = matches.value_of("font_name") {
         result.font_name = font_name.to_string();
-        println!("using font: {}", font_name);
+        info!("using font: {}", font_name);
     }
 
     if let Some(font_range) = matches.value_of("font_range") {
@@ -82,39 +89,65 @@ pub fn create_config() -> Configuration {
 
         let num_of_values = values.len();
 
-        println!("num_of_values: {}", num_of_values);
+        info!("num_of_values: {}", num_of_values);
 
         match num_of_values {
             1 => {
-                println!("wrong format for font range: '{}', use colon ':' to separate values, ex.: '12:16'.", font_range);
+                warn!("wrong format for font range: '{}', use colon ':' to separate values, ex.: '12:16'.", font_range);
             },
             2 => {
-                let min_value = values[0].parse::<u8>();
-                let max_value = values[1].parse::<u8>();
+                let left_value = values[0].parse::<u8>();
+                let right_value = values[1].parse::<u8>();
 
-                match (min_value, max_value) {
-                    (Ok(min_value), Ok(max_value)) => {
-                        println!("font range values: {} - {}", min_value, max_value);
-                        result.font_size_min = min_value;
-                        result.font_size_max = max_value;
+                match (left_value, right_value) {
+                    (Ok(left_value), Ok(right_value)) => {
+                        if left_value < 4 || right_value < 4 {
+                            warn!("values for font size should be at least 4: '{}'", font_range);
+                        } else {
+                            result.font_size_min = cmp::min(left_value, right_value);
+                            result.font_size_max = cmp::max(left_value, right_value);
+                            info!("font range values: {} - {}", result.font_size_min, result.font_size_max);
+                        }
                     },
                     _ => {
-                        println!("wrong format for font range: '{}', two integer values are needed, ex.: '12:16'.", font_range);
+                        warn!("wrong format for font range: '{}', two integer values are needed, ex.: '12:16'.", font_range);
                     }
                 }
             },
             _ => {
-                println!("wrong format for font range: '{}', only two values allowed.", font_range);
+                warn!("wrong format for font range: '{}', only one colon ':' is  allowed.", font_range);
             }
         }
     }
     result
 }
 
-fn load_config(file_name: &str) -> Configuration {
-    println!("Loading configuration file: {}", file_name);
+fn load_config(filename: &str) -> Configuration {
+    info!("Loading configuration file: {}", filename);
 
-    let mut result = default_config().clone();
+    if let Ok(file) = OpenOptions::new().read(true).open(filename) {
+        let mut buf_reader = BufReader::new(file);
+        let mut content = String::new();
+
+        if let Ok(_) = buf_reader.read_to_string(&mut content) {
+            return parse_config_file(&content);
+        } else {
+            // Content of configuration file could not be read, use default settings instead.
+            warn!("Could not read configuration file '{}', using default settings", filename);
+        }
+    } else {
+        // Configuration file could not be opened, use default settings instead.
+        warn!("Could not open configuration file '{}', using default settings", filename);
+    }
+    default_config()
+}
+
+fn parse_config_file(content: &str) -> Configuration {
+    let mut result = default_config();
+
+    if let Ok(docs) = YamlLoader::load_from_str(content) {
+
+    }
 
     result
 }

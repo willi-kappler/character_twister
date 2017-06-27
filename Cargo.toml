@@ -21,6 +21,9 @@ darwin-rs = "0.4"
 clap = "2.25"
 font-loader = "0.3.2"
 yaml-rust = "0.3.5"
+log = "0.3.8"
+simplelog = "0.4.2"
+chrono = "0.4.0"
 
 [profile.release]
 lto = true
