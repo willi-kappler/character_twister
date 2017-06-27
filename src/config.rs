@@ -8,7 +8,7 @@ use std::io::BufReader;
 use std::io::Read;
 use std::cmp;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Configuration {
     pub input_path: String,
     pub font_size_min: u8,
@@ -150,4 +150,36 @@ fn parse_config_file(content: &str) -> Configuration {
     }
 
     result
+}
+
+#[cfg(test)]
+mod test {
+    use super::{parse_config_file, default_config, Configuration};
+
+    #[test]
+    fn parse_config_file1() {
+        let input = "";
+
+        let expected_output = default_config();
+
+        assert_eq!(parse_config_file(input), expected_output);
+    }
+
+    #[test]
+    fn parse_config_file2() {
+        let input = "
+            ---
+            - font:
+                name: FreeMono
+                minSize: 9
+                maxSize: 15
+
+            - input:
+                file: scan_this.jpg
+        ";
+
+        let expected_output = default_config();
+
+        assert_eq!(parse_config_file(input), expected_output);
+    }
 }

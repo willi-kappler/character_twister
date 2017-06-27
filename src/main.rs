@@ -45,12 +45,14 @@ fn main() {
 
     let config = create_config();
 
-
+/*
     let sysfonts = system_fonts::query_all();
 
     for font in &sysfonts {
         println!("font: {}", font);
     }
+*/
+
 
 
 /*
