@@ -1,6 +1,6 @@
 // External modules
 use clap::{Arg, App};
-use yaml_rust::{YamlLoader};
+use toml;
 
 // System modules
 use std::fs::OpenOptions;
@@ -11,10 +11,23 @@ use std::cmp;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Configuration {
     pub input_path: String,
-    pub font_size_min: u8,
-    pub font_size_max: u8,
+    pub font_size_min: i8,
+    pub font_size_max: i8,
     pub font_name: String,
 
+}
+
+#[derive(Deserialize)]
+struct TOMLConfig {
+    font: Option<TOMLFont>,
+    input_path: Option<String>
+}
+
+#[derive(Deserialize)]
+struct TOMLFont {
+    name: String,
+    size_min: i8,
+    size_max: i8
 }
 
 fn default_config() -> Configuration {
@@ -96,8 +109,8 @@ pub fn create_config() -> Configuration {
                 warn!("wrong format for font range: '{}', use colon ':' to separate values, ex.: '12:16'.", font_range);
             },
             2 => {
-                let left_value = values[0].parse::<u8>();
-                let right_value = values[1].parse::<u8>();
+                let left_value = values[0].parse::<i8>();
+                let right_value = values[1].parse::<i8>();
 
                 match (left_value, right_value) {
                     (Ok(left_value), Ok(right_value)) => {
@@ -145,8 +158,21 @@ fn load_config(filename: &str) -> Configuration {
 fn parse_config_file(content: &str) -> Configuration {
     let mut result = default_config();
 
-    if let Ok(docs) = YamlLoader::load_from_str(content) {
+    match toml::from_str::<TOMLConfig>(content) {
+        Ok(config) => {
+            if let Some(input_path) = config.input_path {
+                result.input_path = input_path;
+            }
 
+            if let Some(font) = config.font {
+                result.font_name = font.name;
+                result.font_size_min = font.size_min;
+                result.font_size_max = font.size_max;
+            }
+        },
+        Err(e) => {
+            warn!("TOML parse error: {}", e);
+        }
     }
 
     result
@@ -156,8 +182,12 @@ fn parse_config_file(content: &str) -> Configuration {
 mod test {
     use super::{parse_config_file, default_config, Configuration};
 
+    use logger::create_logger;
+
     #[test]
     fn parse_config_file1() {
+        create_logger();
+
         let input = "";
 
         let expected_output = default_config();
@@ -167,18 +197,24 @@ mod test {
 
     #[test]
     fn parse_config_file2() {
-        let input = "
-            ---
-            - font:
-                name: FreeMono
-                minSize: 9
-                maxSize: 15
+        create_logger();
 
-            - input:
-                file: scan_this.jpg
-        ";
+        let input =
+r#"
+input_path = "./"
 
-        let expected_output = default_config();
+[font]
+name = "SomeFont"
+size_min = 11
+size_max = 19
+"#;
+
+        let expected_output = Configuration{
+            input_path: "./".to_string(),
+            font_size_min: 11,
+            font_size_max: 19,
+            font_name: "SomeFont".to_string()
+        };
 
         assert_eq!(parse_config_file(input), expected_output);
     }
