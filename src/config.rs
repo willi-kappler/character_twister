@@ -201,8 +201,49 @@ mod test {
 
         let input =
 r#"
-input_path = "./"
+input_path = "scans"
 
+[font]
+name = "SomeFont"
+size_min = 11
+size_max = 19
+"#;
+
+        let expected_output = Configuration{
+            input_path: "scans".to_string(),
+            font_size_min: 11,
+            font_size_max: 19,
+            font_name: "SomeFont".to_string()
+        };
+
+        assert_eq!(parse_config_file(input), expected_output);
+    }
+
+    #[test]
+    fn parse_config_file3() {
+        create_logger();
+
+        let input =
+r#"
+input_path = "scans"
+"#;
+
+        let expected_output = Configuration{
+            input_path: "scans".to_string(),
+            font_size_min: 8,
+            font_size_max: 16,
+            font_name: "FreeMono".to_string()
+        };
+
+        assert_eq!(parse_config_file(input), expected_output);
+    }
+
+    #[test]
+    fn parse_config_file4() {
+        create_logger();
+
+        let input =
+r#"
 [font]
 name = "SomeFont"
 size_min = 11
